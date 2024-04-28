@@ -1,19 +1,18 @@
 #!/bin/bash
 
-WDIR="$HOME/exper"
 EVACUATION=".___EVACU___"
 
 #specify ignore-files
 #temp: -o -name "*.*" \
-dotfiles=( $(find $WDIR/.dotfiles -maxdepth 1 ! \( \
+dotfiles=( $(find $HOME/.dotfiles -maxdepth 1 ! \( \
 	-name "bin" \
 	-o -name ".git" \
 	-o -name ".gitignore" \
 \)))
 
-#confirm existence: $WDIR
-if [ ! -d "$WDIR/.dotfiles" ]; then
-	echo "Error: $WDIR/.dotfiles doesn't exist." >&2
+#confirm existence: .dotfiles
+if [ ! -d "$HOME/.dotfiles" ]; then
+	echo "Error: $HOME/.dotfiles doesn't exist." >&2
 	exit 1
 fi
 
@@ -21,47 +20,47 @@ unset 'dotfiles[0]'
 echo "Apply dotfiles."
 
 #confirm existence: $EVACUATION
-if [ -d "$WDIR/$EVACUATION" ]; then
-	echo "Confirm: $WDIR/$EVACUATION have already existed."
+if [ -d "$HOME/$EVACUATION" ]; then
+	echo "Confirm: $HOME/$EVACUATION have already existed."
 	echo "Do you want to use this as is? (or clean)"
 	while :
 	do
 		read -p "[y/n]:" ans
 		if [ "$ans" == "y" ]; then break
 		elif [ "$ans" == "n" ]; then 
-			rm -r $WDIR/$EVACUATION
+			rm -r $HOME/$EVACUATION
 			echo "Cleaned."
-			mkdir $WDIR/$EVACUATION
+			mkdir $HOME/$EVACUATION
 			break
 		else continue
 		fi
 	done
 else
-	mkdir $WDIR/$EVACUATION
+	mkdir $HOME/$EVACUATION
 fi
 
 #move duplicate files and create links
 for dotfile in ${dotfiles[@]};do
-	if [ -e "$WDIR/$(basename $dotfile)" ]; then
-		mv $WDIR/$(basename $dotfile) $WDIR/$EVACUATION
+	if [ -e "$HOME/$(basename $dotfile)" ]; then
+		mv $HOME/$(basename $dotfile) $HOME/$EVACUATION
 	fi
-	ln -snf $dotfile $WDIR 
+	ln -snf $dotfile $HOME 
 done
 
-#confirm and throw away the evacuated file
+#confirm and remove the evacuated file
 if [ "$1" == "-y" ]; then
-	rm -r $WDIR/$EVACUATION
+	rm -r $HOME/$EVACUATION
 	echo "done."
 	exit 0
 fi
 
 while :
 do
-	echo "Do you throw away the evacuated file?"
+	echo "Do you remove the evacuated file?"
 	read -p "[y/n]:" ans
 	if [ "$ans" == "y" ]; then
-		rm -r $WDIR/$EVACUATION
-		echo "Threw away."
+		rm -r $HOME/$EVACUATION
+		echo "removed."
 		break
 	elif [ "$ans" == "n" ]; then break
 	else continue
